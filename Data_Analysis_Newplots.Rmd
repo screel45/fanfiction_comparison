@@ -1,0 +1,334 @@
+---
+Title: Computational Linguistics - Project Data Analysis
+---
+```{r importing libraries}
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+```
+
+```{r reading in the data}
+
+data <- read_excel("Data_Analysis/CL_Data_Analysis.xlsx")
+
+data2 <- read_excel("Data_Analysis/CL_Data2.xlsx")
+head(data2)
+View(data2)
+
+```
+
+
+RQ1: Differences between male and female leads
+
+```{r}
+# Female Leads
+# Male boxplot - Canon & FF
+
+
+# boxplot takes argument of (data$column, ylab = "")
+RQ1_males <- data %>%
+  filter((LeadGender=='Female' & CharGender == 'M' ))
+
+summary(RQ1_males$CanonProp)
+#mean(RQ1_males$CanonProp)
+#sd(RQ1_males$CanonProp)
+
+RQ1_females <- data %>%
+  filter((LeadGender=='Female' & CharGender == 'F' ))
+
+summary(RQ1_females$CanonProp)
+#mean(RQ1_females$CanonProp)
+#sd(RQ1_females$CanonProp)
+
+# M&F Canon Boxplot
+RQ1_together <- data %>%
+  filter((LeadGender=='Female'))
+M_F_Canon <-ggplot(data = RQ1_together, mapping = aes(x = CharGender, y = CanonProp)) + geom_boxplot() + labs(y = 'Proportion of Mentions')
+M_F_Canon
+
+# M&F FF Boxplot
+RQ1_togetherFF <- data %>%
+  filter((LeadGender=='Female'))
+M_F_FF <-ggplot(data = RQ1_togetherFF, mapping = aes(x = CharGender, y = FFProp)) + geom_boxplot() + labs(y = 'Proportion of Mentions')
+M_F_FF
+
+# Master boxplots for female leads
+RQ1_data2 <- data2 %>%
+  filter((LeadGender=='Female'))
+
+M_F_C_FF <- ggplot(data = RQ1_data2, mapping = aes(x = CharGender, y = Prop,group = CharGender, color= CharGender)) + geom_boxplot() + labs(title="Character Mentions for Books with Female Leads", x = "Gender", y = "Char Mention Proportion") + scale_x_discrete(breaks=c("F", "M"), labels=c("Female", "Male")) + facet_grid(FF_Canon ~ .,labeller = labeller(FF_Canon = c_ff.labs)) + stat_summary(fun.y=mean, geom="point", shape=20, size=3, color="blue", fill="blue") 
+M_F_C_FF
+
+# Only for female leads
+#RQ1_data2 %>%
+  #group_by(LeadGender,CharGender,FF_Canon) %>%
+  #summarize(mean(Prop),
+            #sd(Prop))
+
+# All lead info
+data2 %>%
+  group_by(LeadGender,CharGender,FF_Canon) %>%
+  summarize(mean(Prop),
+            sd(Prop))
+
+  
+# Other plots
+# plot(density(Stroopdata$Stroop.RT))
+# qqnorm(Stroopdata$Stroop.RT);qqline(Stroopdata$Stroop.RT)
+
+```
+```{r}
+datatop <- data2 %>%
+  filter(LeadGender =="Female" & CharGender =="M" & FF_Canon =="FF")
+
+head(arrange(datatop,desc(Prop)), n = 5)
+
+
+datatop2 <- data2 %>%
+  filter(Genre =="Fantasy" & CharGender =="M" & FF_Canon =="FF")
+
+head(arrange(datatop2,desc(Prop)), n = 5)
+```
+
+
+```{r}
+# Master boxplots for male leads
+RQ1_data2_m <- data2 %>%
+  filter((LeadGender=='Male'))
+
+M_F_C_FF_2 <- ggplot(data = RQ1_data2_m, mapping = aes(x = CharGender, y = Prop,group = CharGender, color= CharGender)) + geom_boxplot() + labs(title = "Character Mentions for Books with Male Leads", x = "Gender", y = "Char Mention Proportion") + facet_grid(FF_Canon ~ .) + stat_summary(fun.y=mean, geom="point", shape=20, size=3, color="blue", fill="blue") 
+M_F_C_FF_2
+```
+
+RQ 2: Genre Comparison
+
+```{r}
+
+# Master boxplots for genre
+
+
+c_ff.labs <- c("Canon", "Fanfiction")
+names(c_ff.labs) <- c("C", "FF")
+
+
+Genre_M_F_C_FF <- ggplot(data = data2, mapping = aes(x = CharGender, y = Prop,group = CharGender, color= CharGender)) + geom_boxplot() + ggtitle("Character Mentions by Genre") + labs(x ="Gender",y = "Proportion of Mentions") + scale_x_discrete(breaks=c("F", "M"), labels=c("Female", "Male")) + facet_grid(FF_Canon ~ Genre,labeller = labeller(FF_Canon = c_ff.labs)) + stat_summary(fun.y=mean, geom="point", shape=20, size=2, color="blue", fill="blue") 
+Genre_M_F_C_FF
+
+data2 %>%
+  group_by(Genre, CharGender, FF_Canon) %>%
+  summarize(mean(Prop),
+            sd(Prop))
+
+
+
+```
+
+RQ 3: Lead & Genre Comparison
+
+```{r}
+
+
+# Master boxplots for lead & genre
+
+# Sci-Fi
+RQ3_data2 <- data2 %>%
+  filter((Genre=='Sci-Fi'))
+
+LeadGenre_M_F_C_FF <- ggplot(data = RQ3_data2, mapping = aes(x = CharGender, y = Prop,group = CharGender, color= CharGender)) + geom_boxplot() + labs(title = "Character Mentions for Sci-Fi Female and Male Leads",x = "Gender", y = "Proportion of Character Mentions") + scale_x_discrete(breaks=c("F", "M"), labels=c("Female", "Male")) + facet_grid(FF_Canon ~ LeadGender,labeller = labeller(FF_Canon = c_ff.labs)) + stat_summary(fun.y=mean, geom="point", shape=20, size=3, color="blue", fill="blue") 
+LeadGenre_M_F_C_FF
+
+
+
+
+# Sci-Fi
+RQ3_data2 %>%
+  group_by(LeadGender, CharGender, FF_Canon) %>%
+  summarize(mean(Prop),
+            sd(Prop))
+
+
+# Fantasy
+RQ3_data2_f <- data2 %>%
+  filter((Genre=='Fantasy'))
+
+LeadGenre_M_F_C_FF_f <- ggplot(data = RQ3_data2_f, mapping = aes(x = CharGender, y = Prop,group = CharGender, color= CharGender)) + geom_boxplot() + labs(title = "Character Mentions for Fantasy Female & Male Leads", x = "Gender", y = "Proportion of Character Mentions")+scale_x_discrete(breaks=c("F", "M"), labels=c("Female", "Male")) + facet_grid(FF_Canon ~ LeadGender,labeller = labeller(FF_Canon = c_ff.labs)) + stat_summary(fun.y=mean, geom="point", shape=20, size=3, color="blue", fill="blue") 
+LeadGenre_M_F_C_FF_f
+
+# Fantasy
+RQ3_data2_f %>%
+  group_by(LeadGender, CharGender, FF_Canon) %>%
+  summarize(mean(Prop),
+            sd(Prop))
+
+
+
+# Classics
+RQ3_data2_c <- data2 %>%
+  filter((Genre=='Classic'))
+
+LeadGenre_M_F_C_FF_c <- ggplot(data = RQ3_data2_c, mapping = aes(x = CharGender, y = Prop,group = CharGender, color= CharGender)) + geom_boxplot() + labs(title = "Character Mentions for Classics Female & Male Leads", x = "Gender", y = "Proportion of Character Mentions") + scale_x_discrete(breaks=c("F", "M"), labels=c("Female", "Male"))+ facet_grid(FF_Canon ~ LeadGender,labeller = labeller(FF_Canon = c_ff.labs)) + stat_summary(fun.y=mean, geom="point", shape=20, size=3, color="blue", fill="blue") 
+LeadGenre_M_F_C_FF_c
+
+# Classics
+RQ3_data2_c %>%
+  group_by(LeadGender, CharGender, FF_Canon) %>%
+  summarize(mean(Prop),
+            sd(Prop))
+
+
+```
+
+Paired T-tests
+```{r}
+
+# Testing Overall Genre Scifi
+t_test_scifem <- data %>%
+  filter((Genre=='Sci-Fi' & CharGender == 'F'))
+View(t_test_scifem)
+
+t_test_scimal <- data %>%
+  filter((Genre=='Sci-Fi' & CharGender == 'M'))
+View(t_test_scimal)
+
+#females
+t.test(t_test_scifem$CanonProp,t_test_scifem$FFProp, paired = TRUE)
+
+#males
+t.test(t_test_scimal$CanonProp,t_test_scimal$FFProp, paired = TRUE)
+
+```
+```{r}
+# Testing Lead & Genre Scifi
+t_test2_scifem <- data %>%
+  filter((LeadGender =='Female' & Genre=='Sci-Fi' & CharGender == 'F'))
+View(t_test2_scifem)
+
+t_test2_scimal <- data %>%
+  filter((LeadGender =='Male' & Genre=='Sci-Fi' & CharGender == 'M'))
+View(t_test2_scimal)
+
+#females
+t.test(t_test2_scifem$CanonProp,t_test2_scifem$FFProp, paired = TRUE)
+
+#males
+t.test(t_test2_scimal$CanonProp,t_test2_scimal$FFProp, paired = TRUE)
+
+```
+```{r}
+# Testing Lead & Genre Classics
+t_test2_clasfem <- data %>%
+  filter((LeadGender =='Female' & Genre=='Classic' & CharGender == 'F'))
+View(t_test2_clasfem)
+
+t_test2_clasmal <- data %>%
+  filter((LeadGender =='Male' & Genre=='Classic' & CharGender == 'M'))
+View(t_test2_clasmal)
+
+#females
+t.test(t_test2_clasfem$CanonProp,t_test2_clasfem$FFProp, paired = TRUE)
+
+#males
+t.test(t_test2_clasmal$CanonProp,t_test2_clasmal$FFProp, paired = TRUE)
+```
+
+```{r}
+t_test2_clasfem_m <- data %>%
+  filter((LeadGender =='Female' & Genre=='Classic' & CharGender == 'M'))
+View(t_test2_clasfem_m)
+
+t.test(t_test2_clasfem_m$CanonProp,t_test2_clasfem_m$FFProp, paired = TRUE)
+
+
+t_test2_clasmal_f <- data %>%
+  filter((LeadGender =='Male' & Genre=='Classic' & CharGender == 'F'))
+View(t_test2_clasmal_f)
+
+t.test(t_test2_clasmal_f$CanonProp,t_test2_clasmal_f$FFProp, paired = TRUE)
+
+```
+```{r}
+data$Diff <- data$CanonProp - data$FFProp
+head(data)
+View(data)
+```
+```{r}
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Female' & Genre == 'Sci-Fi' & CanonName =='TM - The Midnighters'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - The Midnighters (FL, Sci-Fi)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+```
+
+```{r}
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Female' & Genre == 'Sci-Fi' & CanonName =='LC - Lunar Chronicles'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Lunar Chronicles (FL, Sci-Fi)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+```
+```{r}
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Male' & Genre == 'Sci-Fi' & CanonName =='GN - Gone'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Gone (ML, Sci-Fi)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Male' & Genre == 'Sci-Fi' & CanonName =='MR - Maze Runner'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - The Maze Runner (ML, Sci-Fi)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+```
+
+
+```{r}
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Male' & Genre == 'Fantasy' & CanonName =='HP - Harry Potter'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Harry Potter (ML, Fantasy)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+
+
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Male' & Genre == 'Fantasy' & CanonName =='AR - Artemis Fowl'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Artemis Fowl (ML, Fantasy)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+```
+```{r}
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Female' & Genre == 'Classic' & CanonName =='PR - Pride and Prejudice'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Pride & Prejudice (FL, Classics)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Female' & Genre == 'Classic' & CanonName =='PO - Phantom of the Opera'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Phantom of the Opera (FL, Classics)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+```
+```{r}
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Male' & Genre == 'Classic' & CanonName =='PP - Peter Pan'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Peter Pan (ML, Classics)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+
+# Plot of Character Differences
+Char_data <- data %>%
+  filter((LeadGender=='Male' & Genre == 'Classic' & CanonName =='LM - Les Miserables'))
+
+M_F_C_FF <- ggplot(data = Char_data, mapping = aes(x = Character, y = Diff)) + geom_bar(stat="identity", fill="steelblue") + labs(title="Percent Change - Les Miserables (ML, Classics)", x = "Character", y = "Diff") + facet_grid(CharGender ~.)
+M_F_C_FF
+```
+
