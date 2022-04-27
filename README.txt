@@ -40,5 +40,5 @@ We've included a link here to (9) our master spreadsheet containing all the data
 	BookNLP Output Spread: https://drive.google.com/open?id=1i5d3owSIr8NZ2-iUJM8N6YboEDT6sd2Q1I6RYiWzkD4
 (10) Master sheet for R with top ten characters: 
 	CL Data: https://docs.google.com/spreadsheets/d/1fC7X-3edQeWDK3jHQXPHgG4dx5Lk3P0BfoZTJtVQie4/edit?usp=sharing
-(11) R markdown file: 
+(11) R markdown file (Samantha): 
 	Data_Analysis_Newplots.Rmd: https://drive.google.com/file/d/1gxpHPWexYObWxgbqLRogG94UrQQPFcaq/view?usp=sharing 
